@@ -1,0 +1,19 @@
+#禁用thymeleaf模板缓存, 也可以禁用其他缓存
+spring:
+  thymeleaf:    cache: false
+    
+#配置嵌入服务器, spring boot内置一个Tomcat服务器
+#提供https服务, https服务习惯上使用8443端口号, 不知道密钥文件怎么生成, 路径也不知道怎么配置
+#https://blog.csdn.net/july_young/article/details/83744809
+#server:
+#  port: 8443
+#  ssl: #    key-store: file:///path/to/mykeys.jks
+#    key-store-password: letmein
+#    key-password: letmein
+
+#日志配置
+#logging:#  level:#    root: WARN
+#    org: 
+#      springframework:
+#        security: DEBUG
+        
