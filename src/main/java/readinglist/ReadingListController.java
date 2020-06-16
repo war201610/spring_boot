@@ -3,8 +3,8 @@ package readinglist;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+//import org.springframework.boot.context.properties.ConfigurationProperties;
+//import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,9 +28,10 @@ public class ReadingListController {
 		this.readingListRepository = readingListRepository;
 		this.amazonProperties = amazonProperties;
 	}
-
-	@RequestMapping(value = "/{reader}", method = RequestMethod.GET)
+//和类前面的requestmapping连起来用, get方法的映射是/readinglocalhost/rlget/任意值
+	@RequestMapping(value = "/rlget/{reader}", method = RequestMethod.GET)
 	public String readersBooks(@PathVariable("reader") String reader, Model model) {
+		System.out.println("get method");
 		List<Book> readingList = readingListRepository.findByReader(reader);
 		if (readingList != null) {
 			model.addAttribute("books", readingList);
@@ -40,10 +41,11 @@ public class ReadingListController {
 		return "readingList";
 	}
 
-	@RequestMapping(value = "/{reader}", method = RequestMethod.POST)
+	@RequestMapping(value = "/rlpost/{reader}", method = RequestMethod.POST)
 	public String addToReadingList(@PathVariable("reader") String reader, Book book) {
+		System.out.println("post method");
 		book.setReader(reader);
 		readingListRepository.save(book);
-		return "redirect:/readingList/{reader}";
+		return "redirect:/readingList/rlget/{reader}";
 	}
 }

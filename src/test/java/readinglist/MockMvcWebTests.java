@@ -1,6 +1,7 @@
 package readinglist;
 
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.hamcrest.Matchers.*;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -26,18 +28,29 @@ class MockMvcWebTests {
 	
 	private MockMvc mockMvc;
 
-	@Before
+	@BeforeEach
 	public void setupMockMvc() {
-		mockMvc = MockMvcBuilders.webAppContextSetup(webContext).build();
+		System.out.println("setupMockMvc");
+		this.mockMvc = MockMvcBuilders
+				.webAppContextSetup(this.webContext)
+				.apply(springSecurity())
+				.build();
+	}
+	
+	@AfterEach
+	public void aftertest() {
+		System.out.println("after test");
 	}
 
 	@Test
-	void contextLoads() {
+	void contextLoads() throws Exception {
+		System.out.println("contextLoads");
 	}
 	
 	@Test
 	public void homePage() throws Exception {
-		mockMvc.perform(MockMvcRequestBuilders.get("/readingList"))
+		System.out.println("homePage");
+		mockMvc.perform(MockMvcRequestBuilders.get("/readingList/rlget/craig"))
 			.andExpect(status().isOk())
 			.andExpect(view().name("readingList"))
 			.andExpect(model().attributeExists("books"))
@@ -46,14 +59,17 @@ class MockMvcWebTests {
 	
 	@Test
 	public void postBook() throws Exception {
-		mockMvc.perform(post("/readingList")
+		//前后两次测试是关联的要向同一个读者发送请求
+		final String reader = "craig";
+		System.out.println("postBook");
+		mockMvc.perform(post("/readingList/rlpost/{reader}",reader)//向字符串传递参数应该用post的参数里添加
 				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 				.param("title", "BOOK TITLE")
 				.param("author", "BOOK AUTHOR")
 				.param("isbn", "123456")
 				.param("description", "DESCRIPTION"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(header().string("Location", "/readingList"));
+				.andExpect(header().string("Location", "/readingList/rlget/" + reader));
 		
 		Book expectedBook = new Book();
 		expectedBook.setId(1L);
@@ -63,7 +79,7 @@ class MockMvcWebTests {
 		expectedBook.setIsbn("123456");
 		expectedBook.setDescription("DESCRIPTION");
 		
-		mockMvc.perform(get("/readingList"))
+		mockMvc.perform(get("/readingList/rlget/craig"))
 			.andExpect(status().isOk())
 			.andExpect(view().name("readingList"))
 			.andExpect(model().attributeExists("books"))
